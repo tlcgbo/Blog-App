@@ -4,9 +4,11 @@ import Blog from './pages/Blog'
 function App() {
 
   return (
-    <>
-      <Blog />
-    </>
+    <Router>
+      <nav className='nav'>
+        
+      </nav>
+    </Router>
   )
 }
 
