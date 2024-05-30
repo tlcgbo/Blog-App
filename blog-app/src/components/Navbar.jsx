@@ -1,18 +1,11 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { useState } from 'react'
-import { signOut } from 'firebase/auth'
-import { auth } from '../firebase-config'
 
-function Navbar() {
 
-    const signUserOut = () => {
-        signOut(auth).then(() => {
-          localStorage.clear();
-          setIsAuth(false);
-         window.location.pathname = '/login'
-        })
-      }
+function Navbar({handleSignOut}) {
+
+   
 
   return (
     <div>
@@ -23,7 +16,7 @@ function Navbar() {
         
         <>
           <Link to='/createpost'>Create Post</ Link>
-        <button onClick={signUserOut} className="login-btn">Sign Out</button>
+        <button onClick={handleSignOut} className="login-btn">Sign Out</button>
         </>
        
       </nav>
