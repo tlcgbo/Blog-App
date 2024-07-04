@@ -1,9 +1,9 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { useState } from 'react'
+import { signOut } from 'firebase/auth'
+import { auth } from '../firebase-config'
+import { Link } from 'react-router-dom'
 
-
-function Navbar({handleSignOut}) {
+function Navbar({handleSignOut, isAuth}) {
 
    
 
@@ -11,13 +11,19 @@ function Navbar({handleSignOut}) {
     <div>
         <nav className="nav">
         <Link to='/'>Blog</Link>
-       
+       {
+      !isAuth ? (
         <Link to='/login'>Login</Link> 
-        
+      ) : (
         <>
           <Link to='/createpost'>Create Post</ Link>
         <button onClick={handleSignOut} className="login-btn">Sign Out</button>
         </>
+      )
+
+       }
+        
+        
        
       </nav>
     </div>

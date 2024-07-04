@@ -8,6 +8,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from './firebase-config'
 import { useEffect, useState } from 'react'
 
+
 function App() {
   const [isAuth, setIsAuth] = useState(localStorage.getItem('isAuth'));
 
@@ -16,6 +17,7 @@ function App() {
     signOut(auth).then(() => {
       localStorage.clear();
       setIsAuth(false);
+    window.location.pathname = '/login'
     })
   }
 
@@ -23,7 +25,7 @@ function App() {
     
     <Router> 
 
-      <Navbar handleSignOut={signUserOut}/>
+      <Navbar handleSignOut={signUserOut} isAuth={isAuth} />
       <Routes>
         <Route path="/" element={<Blog isAuth={isAuth} />} />
           <Route path="/createpost" element={<CreatePost isAuth={isAuth}/>} />
