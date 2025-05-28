@@ -1,45 +1,133 @@
-import React, {useEffect, useState} from 'react'
-import { getDocs, collection, deleteDoc, doc } from 'firebase/firestore'
-import { db, auth } from '../firebase-config'
+import React, { useEffect, useState } from 'react';
+import { getDocs, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db, auth } from '../firebase-config';
 
 const Blog = ({ isAuth }) => {
-  const [postLists, setPostList] = useState([])
-
-  const postCollectionRef = collection(db, "posts")
+  const [postLists, setPostList] = useState([]);
+  const postCollectionRef = collection(db, 'posts');
 
   useEffect(() => {
     const getPosts = async () => {
-      const data = await getDocs(postCollectionRef)
-      setPostList(data.docs.map((doc) => ({...doc.data(), id:doc.id})))
-    }
+      const data = await getDocs(postCollectionRef);
+      setPostList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    };
+
     getPosts();
-  })
+  }, []);
 
   const deletePost = async (id) => {
-    const postDoc = doc(db, "posts", id)
-    await deleteDoc(postDoc)
-  }
+    const postDoc = doc(db, "posts", id);
+    await deleteDoc(postDoc);
+    setPostList((prev) => prev.filter((post) => post.id !== id));
+  };
+
+  const toggleReaction = async (postId, currentLikes, currentDislikes, type) => {
+    if (!auth.currentUser) return;
+    const userId = auth.currentUser.uid;
+    const postRef = doc(db, "posts", postId);
+
+    let updatedLikes = currentLikes || [];
+    let updatedDislikes = currentDislikes || [];
+
+    const hasLiked = updatedLikes.includes(userId);
+    const hasDisliked = updatedDislikes.includes(userId);
+
+    if (type === 'like') {
+      updatedLikes = hasLiked
+        ? updatedLikes.filter(id => id !== userId)
+        : [...updatedLikes, userId];
+      updatedDislikes = updatedDislikes.filter(id => id !== userId); // remove dislike if it exists
+    } else {
+      updatedDislikes = hasDisliked
+        ? updatedDislikes.filter(id => id !== userId)
+        : [...updatedDislikes, userId];
+      updatedLikes = updatedLikes.filter(id => id !== userId); // remove like if it exists
+    }
+
+    await updateDoc(postRef, {
+      likes: updatedLikes,
+      dislikes: updatedDislikes
+    });
+
+    setPostList(prev =>
+      prev.map(post =>
+        post.id === postId
+          ? { ...post, likes: updatedLikes, dislikes: updatedDislikes }
+          : post
+      )
+    );
+  };
 
   return (
-    <div className='homePage'>
-      {postLists.map((post) => {
-        return(
-          <div className='post' key={post.id}>
-          <div className='postHeader'>
-            <div className='title'>
-              <h1>{post.title}</h1>
+    <div className="min-h-screen bg-[#0f172a] text-gray-100 px-6 py-12 max-w-6xl mx-auto font-sans">
+      <h1 className="text-5xl font-extrabold p-20 mb-14 text-center tracking-tight text-white">
+        Latest Blog Posts
+      </h1>
+
+      <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2">
+        {postLists.map((post) => {
+          const hasLiked = post.likes?.includes(auth.currentUser?.uid);
+          const hasDisliked = post.dislikes?.includes(auth.currentUser?.uid);
+
+          return (
+            <div
+              key={post.id}
+              className="bg-[#1e293b] rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-[#334155] p-6 flex flex-col justify-between"
+            >
+              <div className="mb-4">
+                <div className="flex justify-between items-start mb-3">
+                  <h2 className="text-2xl font-semibold leading-snug text-indigo-200 hover:text-purple-400 cursor-pointer transition-colors">
+                    {post.title}
+                  </h2>
+                  {isAuth && auth.currentUser && post.author?.id === auth.currentUser.uid && (
+                    <button
+                      onClick={() => deletePost(post.id)}
+                      className="text-gray-400 hover:text-red-400 transition-colors text-xl"
+                      aria-label="Delete post"
+                      title="Delete Post"
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </div>
+                <p className="text-gray-300 whitespace-pre-line leading-relaxed">
+                  {post.postText.length > 300
+                    ? post.postText.slice(0, 300) + '...'
+                    : post.postText}
+                </p>
+              </div>
+
+              <div className="flex justify-between items-center mt-4">
+                <span className="italic text-sm text-gray-400">@{post.author?.name}</span>
+                <div className="flex items-center gap-4 text-sm">
+                  <button
+                    onClick={() =>
+                      toggleReaction(post.id, post.likes || [], post.dislikes || [], 'like')
+                    }
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 ${
+                      hasLiked ? 'text-pink-400' : 'text-gray-400 hover:text-pink-300'
+                    }`}
+                  >
+                    ❤️ {post.likes?.length || 0}
+                  </button>
+                  <button
+                    onClick={() =>
+                      toggleReaction(post.id, post.likes || [], post.dislikes || [], 'dislike')
+                    }
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200 ${
+                      hasDisliked ? 'text-blue-400' : 'text-gray-400 hover:text-blue-300'
+                    }`}
+                  >
+                    👎 {post.dislikes?.length || 0}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className='deletePost'>
-              {isAuth && post.author.id === auth.currentUser.uid && <button onClick={() => {deletePost(post.id)} }> &#128465; </button>}
-            </div>
-          </div>
-          <div className='postTextContainer'>{post.postText}</div>
-          <h3>@{post.author?.name}</h3>
-        </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
 
-export default Blog
+export default Blog;

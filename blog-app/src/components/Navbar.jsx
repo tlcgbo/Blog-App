@@ -1,33 +1,50 @@
-import { useState } from 'react'
-import { signOut } from 'firebase/auth'
-import { auth } from '../firebase-config'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-function Navbar({handleSignOut, isAuth}) {
-
-   
-
+function Navbar({ handleSignOut, isAuth }) {
   return (
-    <div>
-        <nav className="nav">
-        <Link to='/'>Blog</Link>
-       {
-      !isAuth ? (
-        <Link to='/login'>Login</Link> 
-      ) : (
-        <>
-          <Link to='/createpost'>Create Post</ Link>
-        <button onClick={handleSignOut} className="login-btn">Sign Out</button>
-        </>
-      )
+    <header className="bg-[#1e293b] shadow-md border-b border-[#334155]">
+      <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <Link
+          to="/home"
+          className="text-3xl font-bold text-cyan-400 hover:text-white transition-colors duration-200"
+        >
+          InkByte✒️
+        </Link>
 
-       }
-        
-        
-       
+        <div className="flex items-center gap-6">
+          {!isAuth ? (
+            <Link
+              to="/login"
+              className="text-gray-300 hover:text-cyan-400 font-medium transition-colors duration-200"
+            >
+              Login
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/createpost"
+                className="text-gray-300 hover:text-cyan-400 font-medium transition-colors duration-200"
+              >
+                Create Post
+              </Link>
+              <Link
+                to="/blog"
+                className="text-gray-300 hover:text-cyan-400 font-medium transition-colors duration-200"
+              >
+                Posts
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="bg-red-700 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-md transition duration-200"
+              >
+                Sign Out
+              </button>
+            </>
+          )}
+        </div>
       </nav>
-    </div>
-  )
+    </header>
+  );
 }
 
-export default Navbar
+export default Navbar;
