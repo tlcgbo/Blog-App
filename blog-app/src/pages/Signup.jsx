@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { auth, provider } from '../firebase-config';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 
-function Login({ setIsAuth }) {
+function SignUp({ setIsAuth }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       localStorage.setItem('isAuth', true);
       setIsAuth(true);
       navigate('/blog');
@@ -22,7 +22,7 @@ function Login({ setIsAuth }) {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signUpWithGoogle = async () => {
     try {
       await signInWithPopup(auth, provider);
       localStorage.setItem('isAuth', true);
@@ -36,11 +36,11 @@ function Login({ setIsAuth }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f172a] px-4">
       <div className="w-full max-w-md bg-[#1e293b] rounded-xl shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-center text-white mb-6">Log In</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-6">Sign Up</h2>
 
         {errorMsg && <div className="text-red-400 text-sm mb-4 text-center">{errorMsg}</div>}
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSignUp} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
@@ -63,27 +63,24 @@ function Login({ setIsAuth }) {
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition"
           >
-            Login
+            Create Account
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-300">
-          Don't have an account?
-          <Link
-            to="/signup"
-            className="text-red"
-          >
-            Sign Up
+          Already have an account?{' '}
+          <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold">
+            Login
           </Link>
         </div>
 
         <div className="mt-6 text-center">
           <p className="text-gray-400 mb-2">or</p>
           <button
-            onClick={signInWithGoogle}
+            onClick={signUpWithGoogle}
             className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition"
           >
-            Sign in with Google
+            Sign up with Google
           </button>
         </div>
       </div>
@@ -91,4 +88,4 @@ function Login({ setIsAuth }) {
   );
 }
 
-export default Login;
+export default SignUp;

@@ -1,6 +1,16 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-function HomePage() {
+function HomePage({ isAuth }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuth) {
+      navigate('/blog');
+    }
+  }, [isAuth, navigate]);
+
   return (
     <div className="min-h-screen bg-[#0f172a] text-gray-100 flex flex-col justify-center items-center px-6">
       <div className="max-w-3xl text-center">
@@ -13,7 +23,7 @@ function HomePage() {
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <Link
             to="/login"
-            className="bg-indigo-800   text-white px-6 py-3 rounded-lg text-lg font-semibold transition duration-200 shadow-md"
+            className="bg-indigo-800 text-white px-6 py-3 rounded-lg text-lg font-semibold transition duration-200 shadow-md"
           >
             Create a Post
           </Link>

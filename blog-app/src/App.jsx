@@ -8,6 +8,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase-config';
 import { useEffect, useState } from 'react';
 import HomePage from "./components/Homepage";
+import Signup from "./pages/Signup"
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
@@ -35,7 +36,8 @@ function App() {
         <Route path="/blog" element={<Blog isAuth={isAuth} />} />
         <Route path="/createpost" element={<CreatePost isAuth={isAuth} />} />
         <Route path="/login" element={<Login setIsAuth={setIsAuth} />} />
-        <Route path="/home" element={<HomePage setIsAuth={setIsAuth} />} />   
+        <Route path="/signup" element={<Signup setIsAuth={setIsAuth} />} />
+        <Route path="/" element={<HomePage setIsAuth={setIsAuth} />} />   
       </Routes>
     </Router>
   );
