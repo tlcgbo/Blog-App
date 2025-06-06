@@ -4,6 +4,7 @@ import { db, auth } from '../firebase-config';
 
 const Blog = ({ isAuth }) => {
   const [postLists, setPostList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const postCollectionRef = collection(db, 'posts');
 
   useEffect(() => {
@@ -11,7 +12,6 @@ const Blog = ({ isAuth }) => {
       const data = await getDocs(postCollectionRef);
       setPostList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
-
     getPosts();
   }, []);
 
@@ -36,12 +36,12 @@ const Blog = ({ isAuth }) => {
       updatedLikes = hasLiked
         ? updatedLikes.filter(id => id !== userId)
         : [...updatedLikes, userId];
-      updatedDislikes = updatedDislikes.filter(id => id !== userId); // remove dislike if it exists
+      updatedDislikes = updatedDislikes.filter(id => id !== userId);
     } else {
       updatedDislikes = hasDisliked
         ? updatedDislikes.filter(id => id !== userId)
         : [...updatedDislikes, userId];
-      updatedLikes = updatedLikes.filter(id => id !== userId); // remove like if it exists
+      updatedLikes = updatedLikes.filter(id => id !== userId);
     }
 
     await updateDoc(postRef, {
@@ -58,14 +58,31 @@ const Blog = ({ isAuth }) => {
     );
   };
 
+  // 🔍 Filter posts based on search input
+  const filteredPosts = postLists.filter((post) =>
+    post.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-[#0f172a] text-gray-100 px-6 py-12 max-w-6xl mx-auto font-sans">
-      <h1 className="text-5xl font-extrabold p-20 mb-14 text-center tracking-tight text-white">
+      <h1 className="text-5xl font-extrabold p-20 mb-10 text-center tracking-tight text-white">
         Latest Blog Posts
       </h1>
 
+      {/* Search Bar */}
+      <div className="mb-10 flex justify-center">
+        <input
+          type="text"
+          className="w-full max-w-xl px-5 py-3 rounded-lg bg-[#1e293b] border border-[#334155] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          placeholder="Search blog titles..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* Blog Grid */}
       <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2">
-        {postLists.map((post) => {
+        {filteredPosts.map((post) => {
           const hasLiked = post.likes?.includes(auth.currentUser?.uid);
           const hasDisliked = post.dislikes?.includes(auth.currentUser?.uid);
 
